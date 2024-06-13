@@ -40,8 +40,9 @@ func CreateConfigReader() *Config {
 	}
 
 	config := &Config{
-		Path:     path,
-		KillChan: make(chan bool),
+		Path:       path,
+		UpdateChan: make(chan bool),
+		KillChan:   make(chan bool),
 	}
 
 	config.updateFromJson()
@@ -52,7 +53,7 @@ func CreateConfigReader() *Config {
 
 func (c *Config) Kill() { c.KillChan <- true }
 
-func (config Config) Watch() {
+func (config *Config) Watch() {
 
 	go func() {
 
@@ -80,8 +81,8 @@ func (config Config) Watch() {
 			case <-watcher.Events:
 				time.Sleep(50 * time.Millisecond)
 				config.updateFromJson()
-				config.UpdateChan <- true
-				fmt.Println("send true to update channel")
+
+				go func() { config.UpdateChan <- true }()
 
 			case watcherErr := <-watcher.Errors:
 				log.Fatalf("Error at file watcher: %s", watcherErr)
