@@ -44,8 +44,6 @@ func main() {
 	for !killed {
 		fmt.Scanln(&response)
 
-		fmt.Println("response:", response)
-
 		switch response {
 
 		case "k":

@@ -1,5 +1,5 @@
 {
     "ShutdownTime":"10:30pm",
-	"AlertAdvantage":"15m",
-    "PostponeDuration":"5m"
+	"AlertAdvantage":"2m",
+    "PostponeDuration":"30s"
 }

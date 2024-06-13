@@ -136,6 +136,4 @@ func (config *Config) updateFromJson() {
 	config.AlertAdvance = advantage
 	config.Postpone = postponeT
 
-	config.UpdateChan <- true
-
 }
