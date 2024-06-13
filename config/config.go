@@ -21,14 +21,16 @@ type Config struct {
 
 	Target       utils.Hour
 	AlertAdvance time.Duration
+	Postpone     time.Duration
 
 	KillChan   chan bool
 	UpdateChan chan bool
 }
 
 type StringConfigs struct {
-	ShutdownTime   string `json:"ShutdownTime"`
-	AlertAdvantage string `json:"AlertAdvantage"`
+	ShutdownTime     string `json:"ShutdownTime"`
+	AlertAdvantage   string `json:"AlertAdvantage"`
+	PostponeDuration string `json:"PostponeDuration"`
 }
 
 func CreateConfigReader() *Config {
@@ -50,8 +52,6 @@ func CreateConfigReader() *Config {
 	return config
 
 }
-
-func (c *Config) Kill() { c.KillChan <- true }
 
 func (config *Config) Watch() {
 
@@ -117,6 +117,7 @@ func (config *Config) updateFromJson() {
 
 	target, errTarget := utils.ParseHour(fields.ShutdownTime)
 	advantage, errAdvantage := time.ParseDuration(fields.AlertAdvantage)
+	postponeT, errPostpone := time.ParseDuration(fields.PostponeDuration)
 
 	if errTarget != nil {
 		log.Panicf("Couldn't get errTarget json data field. Aborting config change.%v\n", target)
@@ -126,8 +127,15 @@ func (config *Config) updateFromJson() {
 		log.Panicf("Couldn't get errAdvantage json data field. Aborting config change.\n")
 		return
 	}
+	if errPostpone != nil {
+		log.Panicf("Couldn't get errAdvantage json data field. Aborting config change.\n")
+		return
+	}
 
 	config.Target = target
 	config.AlertAdvance = advantage
+	config.Postpone = postponeT
+
+	config.UpdateChan <- true
 
 }

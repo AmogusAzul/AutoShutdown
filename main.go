@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"os/exec"
 	"runtime"
-	"time"
 
 	"github.com/AmogusAzul/AutoShutdown/alarmer"
 	"github.com/AmogusAzul/AutoShutdown/config"
@@ -26,8 +25,8 @@ func main() {
 		}
 	}
 	alertFunc := func() {
-		fmt.Printf("WILL TRIGGER IN %d seconds\n",
-			config.AlertAdvance/time.Second)
+		fmt.Printf("WILL TRIGGER IN %v\n",
+			config.AlertAdvance)
 	}
 
 	alarmer := alarmer.GetAlarmer(
@@ -39,6 +38,21 @@ func main() {
 
 	fmt.Println("Waiting")
 
-	fmt.Scanln()
+	response := ""
+	killed := false
+
+	for !killed {
+		fmt.Scanln(&response)
+
+		fmt.Println("response:", response)
+
+		switch response {
+
+		case "k":
+			killed = true
+		case "p":
+			alarmer.Postpone()
+		}
+	}
 
 }

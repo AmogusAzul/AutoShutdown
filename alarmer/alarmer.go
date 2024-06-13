@@ -1,6 +1,7 @@
 package alarmer
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/AmogusAzul/AutoShutdown/config"
@@ -80,13 +81,25 @@ func (a *Alarmer) UpdateTimers() {
 
 }
 
-func CalculateTimes(alertAdvanceDuration, targetDuration time.Duration) (alertTime time.Time) {
+func CalculateTimes(alertAdvanceDuration, targetDuration time.Duration) time.Time {
 
 	now := time.Now()
 
 	startOfTheDay := time.Date(now.Year(), now.Month(), time.Now().Day(), 0, 0, 0, 0, now.Location())
 
-	alertTime = startOfTheDay.Add(targetDuration - alertAdvanceDuration)
+	return startOfTheDay.Add(targetDuration - alertAdvanceDuration)
+}
 
-	return
+func (a *Alarmer) Postpone() {
+
+	a.AlertTimer.Stop()
+	a.TargetTimer.Stop()
+
+	alertTime := CalculateTimes(a.Config.AlertAdvance, a.Config.Target.AsDuration())
+
+	fmt.Println(time.Until(alertTime))
+	fmt.Println(max(time.Until(alertTime), time.Duration(0)))
+
+	a.AlertTimer.Reset(max(time.Until(alertTime), time.Duration(0)) + a.Config.Postpone)
+
 }
